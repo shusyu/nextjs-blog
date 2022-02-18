@@ -3,6 +3,7 @@ import path from 'path'
 import matter from 'gray-matter'
 import { remark } from 'remark'
 import html from 'remark-html'
+import fetch from 'node-fetch'
 
 const postsDirectory = path.join(process.cwd(), 'posts')
 
@@ -38,8 +39,18 @@ export function getSortedPostsData() {
   })
 }
 
-export function getAllPostIds() {
-  const fileNames = fs.readdirSync(postsDirectory)
+type Files = [{
+  name: string
+}] | []
+
+
+export async function getAllPostIds() {
+  // const fileNames = fs.readdirSync(postsDirectory)
+
+  const repoUrl = 'https://api.github.com/repos/shusyu/nextjs-blog/contents/posts'
+  const response = await fetch(repoUrl)
+  const files: Files = await response.json().then((json: Files) => json).catch((error: Error) => [])
+  const fileNames = files.map(file => file.name)
 
   // Returns an array that looks like this:
   // [
